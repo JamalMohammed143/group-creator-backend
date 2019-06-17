@@ -8,9 +8,7 @@ var Storage = multer.diskStorage({
         callback(null, "./uploads");
     },
     filename: function (req, file, callback) {
-        // console.log('jamal name= ' + req.body);
-        // console.log('jamal res= ' + file.name);
-        // callback(null, file.name + "_" + Date.now());
+        //callback(null, file.name + "_" + Date.now());
         callback(null, file.originalname);
     }
 });
@@ -122,10 +120,10 @@ router.get("/deleteEmployee", function (req, res) {
     });
 });
 
-//updateEmployee new employee
+//updateEmployee new employee empId
 router.post("/updateEmployee", function (req, res) {
     var inputParams = req.body;
-    var sql = "UPDATE `emp_details` SET name = '" + inputParams.name + "', department = '" + inputParams.department + "', gender = '" + inputParams.gender + "' WHERE id = " + inputParams.emp_id + "";
+    var sql = "UPDATE `emp_details` SET name = '" + inputParams.name + "', department = '" + inputParams.department + "', gender = '" + inputParams.gender + "', empId = '" + inputParams.empId + "' WHERE id = " + inputParams.emp_id;
     db.query(sql, function (error, result) {
         console.log('result', result);
         if (error) {
@@ -153,6 +151,7 @@ router.post("/updateEmployee", function (req, res) {
 
 router.post('/uploadImage', function (req, res) {
     upload(req, res, function (err) {
+        //console.log('req.body.emp_id', req.body.emp_id);
         if (err) {
             return res.end("Something went wrong!");
         } else {
