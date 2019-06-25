@@ -2,6 +2,7 @@ const db = require('./dbCon');
 const express = require("express");
 const router = express.Router();
 var multer = require('multer');
+var fs = require('fs');
 
 var Storage = multer.diskStorage({
     destination: function (req, file, callback) {
@@ -15,7 +16,8 @@ var Storage = multer.diskStorage({
 
 var upload = multer({
     storage: Storage
-}).array("File", 3); //Field name and max count
+}).array("File", 3);
+
 var defaultErrorMsg = "Something went wrong...";
 
 //INSERT INTO `emp_details` (name, empId, department, image, gender) VALUES('Jamal Mohammed', 11, 'UI', '', 'male')
@@ -97,15 +99,57 @@ router.post("/createNewEmployee", function (req, res) {
 //delete employee
 router.get("/deleteEmployee", function (req, res) {
     var inputParams = req.query;
-    var sql = "DELETE FROM `emp_details` WHERE id = '" + inputParams.emp_id + "'";
+    var sql = "SELECT * FROM `emp_details` WHERE id = '" + inputParams.emp_id + "'";
     db.query(sql, function (error, result) {
+        console.log('result', result[0].image);
         if (error) {
             res.jsonp({
                 "success": false,
                 "error": error
             });
         } else {
-            if (result.affectedRows > 0) {
+            if (result[0].image != "" && result[0].image != null && result[0].image != undefined) {
+                var data = "uploads/" + result[0].image;
+                fs.unlinkSync(data);
+                deleteRow(res, inputParams);
+            } else {
+                deleteRow(res, inputParams);
+            }
+        }
+    });
+    // var sql = "DELETE FROM `emp_details` WHERE id = '" + inputParams.emp_id + "'";
+    // db.query(sql, function (error, result) {
+    //     if (error) {
+    //         res.jsonp({
+    //             "success": false,
+    //             "error": error
+    //         });
+    //     } else {
+    //         if (result.affectedRows > 0) {
+    //             res.jsonp({
+    //                 "message": "Employee deleted successfully",
+    //                 "success": true
+    //             });
+    //         } else {
+    //             res.jsonp({
+    //                 "message": defaultErrorMsg,
+    //                 "success": false
+    //             });
+    //         }
+    //     }
+    // });
+});
+
+function deleteRow(res, inputParams) {
+    var deleteQuery = "DELETE FROM `emp_details` WHERE id = '" + inputParams.emp_id + "'";
+    db.query(deleteQuery, function (error, delResult) {
+        if (error) {
+            res.jsonp({
+                "success": false,
+                "error": error
+            });
+        } else {
+            if (delResult.affectedRows > 0) {
                 res.jsonp({
                     "message": "Employee deleted successfully",
                     "success": true
@@ -118,7 +162,7 @@ router.get("/deleteEmployee", function (req, res) {
             }
         }
     });
-});
+}
 
 //updateEmployee new employee empId
 router.post("/updateEmployee", function (req, res) {
