@@ -217,4 +217,32 @@ router.post('/uploadImage', function (req, res) {
     });
 });
 
+//updateEmployee new employee empId
+router.post("/login", function (req, res) {
+    var email = req.body.email;
+    var pass = req.body.password;
+    var sql = "SELECT * FROM user_list WHERE email='" + email + "'";
+    db.query(sql, function (error, result) {
+        if (error) {
+            res.jsonp({
+                "success": false,
+                "error": error,
+            });
+        } else {
+            if (result[0].password === pass) {
+                res.jsonp({
+                    "message": "Authentication successfully",
+                    "success": true
+                });
+            } else {
+                res.jsonp({
+                    "success": false,
+                    "error": error,
+                    "message": "Invalid Credentials"
+                });
+            }
+        }
+    });
+});
+
 module.exports = router;
