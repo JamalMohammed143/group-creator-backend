@@ -213,7 +213,6 @@ router.post('/uploadImage', function (req, res) {
                     });
                 }
             });
-
         }
     });
 });
