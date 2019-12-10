@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/JamalMohammed143/group-creator-backend#readme",
   "dependencies": {
+    "atob": "^2.1.2",
     "cors": "^2.8.5",
     "dotenv": "^8.0.0",
     "express": "^4.17.1",

@@ -3,6 +3,7 @@ const express = require("express");
 const router = express.Router();
 var multer = require('multer');
 var fs = require('fs');
+var atob = require('atob');
 
 var Storage = multer.diskStorage({
     destination: function (req, file, callback) {
@@ -226,23 +227,73 @@ router.post("/login", function (req, res) {
         if (error) {
             res.jsonp({
                 "success": false,
-                "error": error,
+                "error": error
             });
         } else {
-            if (result[0].password === pass) {
-                res.jsonp({
-                    "message": "Authentication successfully",
-                    "success": true
-                });
-            } else {
+            if (result.length === 0) {
                 res.jsonp({
                     "success": false,
-                    "error": error,
-                    "message": "Invalid Credentials"
+                    "message": "User not found"
                 });
+            } else {
+                if (atob(result[0].password) === atob(pass)) {
+                    res.jsonp({
+                        "message": "Login successfully",
+                        "success": true
+                    });
+                } else {
+                    res.jsonp({
+                        "success": false,
+                        "error": error,
+                        "message": "Invalid Password"
+                    });
+                }
             }
         }
     });
 });
 
+router.post("/register", function (req, res) {
+    var reqObj = req.body;
+    //console.log("reqObj", atob(reqObj.password));
+    var queryForCheck = "SELECT * FROM user_list WHERE email='" + reqObj.email + "'";
+    db.query(queryForCheck, function (error, result) {
+        if (error) {
+            res.jsonp({
+                "success": false,
+                "error": error
+            });
+        } else {
+            if (result.length > 0) {
+                res.jsonp({
+                    "message": "This email ID already exist",
+                    "success": false
+                });
+            } else {
+                var sql = "INSERT INTO `user_list` (email, password) VALUES('" + reqObj.email + "', '" + reqObj.password + "')";
+                db.query(sql, function (error, result) {
+                    if (error) {
+                        res.jsonp({
+                            "success": false,
+                            "error": error
+                        });
+                    } else {
+                        if (result.affectedRows > 0) {
+                            res.jsonp({
+                                "message": "Register successfully",
+                                "success": true,
+                                "data": reqObj.email
+                            });
+                        } else {
+                            res.jsonp({
+                                "message": defaultErrorMsg,
+                                "success": false
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    });
+});
 module.exports = router;
